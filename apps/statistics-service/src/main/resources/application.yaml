@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: statistics-service
+  datasource:
+    jdbc-url: jdbc:postgresql://postgres:5432/smarthome
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  logging:
+    level:
+      root: DEBUG
+server:
+  port: 8081

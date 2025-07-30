@@ -1,1 +1,6 @@
 .DS_Store
+/apps/temperature-api/target
+!/apps/statistics-service/target/
+!/apps/temperature-api/target/
+/apps/temperature-api/target/
+

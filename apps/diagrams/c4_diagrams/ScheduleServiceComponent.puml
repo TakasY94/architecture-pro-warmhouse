@@ -1,0 +1,24 @@
+@startuml
+title WarmHouse SensorService диаграмма компонентов
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(ScheduleService, "Управление сценариями", "Java, Spring", "Сервис управляющий исполнением, созданием и изменением сценариев умного дома")
+  Container(Database, "Database", "PostgreSQL", "Stores user data and schedules")
+  Container(SensorsGateway, "Сервис отправки сообщений датчикам", "Java, Spring", "Сервис для гарантированной отправки сообщений датчикам, политики повторных отправок")
+}
+
+Container(ScheduleService, "Управление датчиками", "Java, Spring") {
+  Component(AuthController, "AuthController", "Аутентификация и авторизация")
+  Component(ServiceLayer, "Service Layer", "Бизнес логика")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+  Component(TransportLayer, "TransportLayer", "Содержит DTO и логику отправки сообщений датчикам")
+}
+
+Rel(AuthController,ServiceLayer,"Вызывает бизнес логику")
+Rel(ServiceLayer,RepositoryLayer,"Читает/записывает данные")
+Rel(ServiceLayer,TransportLayer,"Читает/отправляет запросы к датчикам")
+Rel(TransportLayer,SensorsGateway,"Читает/отправляет запросы к датчикам")
+Rel(RepositoryLayer,Database,"Читает/отправляет информацию пользователя")
+@enduml

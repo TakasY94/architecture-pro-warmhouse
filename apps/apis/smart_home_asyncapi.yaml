@@ -1,0 +1,66 @@
+asyncapi: '2.4.0'
+info:
+  title: Тёплый дом SensorsGateway API
+  version: '1.0.0'
+  description: Асинхронное API для отправки команд устройствам и получения телеметрии
+servers:
+  kafkaBroker:
+    url: kafka://localhost:9092
+    protocol: kafka
+    description: Kafka-брокер для обработки сообщений
+channels:
+  smart_home/telemetry:
+    description: Топик для публикации данных телеметрии от устройств
+    publish:
+      summary: Публикация телеметрии
+      message:
+        contentType: application/json
+        payload:
+          $ref: '#/components/schemas/TelemetryData'
+  smart_home/device/control:
+    description: Топик для отправки команд устройствам
+    subscribe:
+      summary: Получение команд для управления устройством
+      message:
+        contentType: application/json
+        payload:
+          $ref: '#/components/schemas/DeviceCommand'
+components:
+  schemas:
+    TelemetryData:
+      type: object
+      properties:
+        device_id:
+          type: integer
+          description: Идентификатор устройства
+        value:
+          type: number
+          format: float
+          description: Значение телеметрии
+        unit_id:
+          type: integer
+          description: Идентификатор единицы измерения
+        timestamp:
+          type: string
+          format: date-time
+          description: Временная метка
+      required:
+        - device_id
+        - value
+        - unit_id
+        - timestamp
+    DeviceCommand:
+      type: object
+      properties:
+        device_id:
+          type: integer
+          description: Идентификатор устройства
+        command:
+          type: string
+          description: Команда (например, "turn_on", "turn_off")
+        parameters:
+          type: object
+          description: Дополнительные параметры команды
+      required:
+        - device_id
+        - command

@@ -1,0 +1,25 @@
+@startuml
+title Контекстная диаграмма Тёплого Дома
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь", "Житель умного дома")
+Person(admin, "Администратор", "Администратор поддержки")
+System(WarmHouseSystem, "WarmHouse Сервер", "Система для управления датчиками, сценариями, сбора статистики, платежей")
+System_Ext(SensorsRelays, "Датчики и реле", "Устройства в домах для сбора данных и выполнения команд", "Использует REST API, формат JSON")
+System_Ext(MobileApp, "Мобильное приложение", "Интерфейс для жителей")
+System_Ext(WebPortal, "Веб-портал", "Интерфейс для жителей, администраторов и техподдержки")
+
+System_Ext(bank, "Bank System", "Процессинг для обработки платежей", "Использует REST API, формат JSON")
+
+user --> MobileApp : "Использует мобильное приложение"
+user --> WebPortal : "Использует веб-портал"
+admin --> WebPortal : "Администрирует и поддержка"
+MobileApp --> WarmHouseSystem
+WebPortal --> WarmHouseSystem
+WarmHouseSystem <--> SensorsRelays : "Управление и получение инфы о датчиках"
+WarmHouseSystem --> bank : "Проведение платежей"
+
+@enduml

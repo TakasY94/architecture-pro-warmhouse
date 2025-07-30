@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=builder /app/smarthome .
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 8083
 
 # Command to run the application
 CMD ["./smarthome"]
