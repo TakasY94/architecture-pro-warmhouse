@@ -1,0 +1,105 @@
+@startuml Warmhouse ER Diagram
+
+' Сущности
+entity "users" {
+  *user_id <<PK>> 
+  --
+  name
+  email
+  role
+}
+
+entity "houses" {
+  *house_id <<PK>>
+  --
+  user_id <<FK>>
+  name
+  address
+  created_at
+}
+
+entity "device_types" {
+  *device_type_id <<PK>>
+  --
+  type_name
+  description
+}
+
+entity "devices" {
+  *device_id <<PK>>
+  --
+  house_id <<FK>>
+  device_type_id <<FK>>
+  name
+  status
+  created_at
+}
+
+entity "modules" {
+  *module_id <<PK>>
+  --
+  name
+  configuration
+  created_at
+}
+
+entity "measurement_units" {
+  *unit_id <<PK>>
+  --
+  name
+  description
+}
+
+entity "telemetry_data" {
+  *telemetry_id <<PK>>
+  --
+  device_id <<FK>>
+  unit_id <<FK>>
+  value
+  timestamp
+}
+
+entity "scenarios" {
+  *scenario_id <<PK>>
+  --
+  user_id <<FK>>
+  name
+  description
+  is_active
+  created_at
+}
+
+entity "module_devices" {
+  *module_id <<PK,FK>>
+  *device_id <<PK,FK>>
+}
+
+entity "scenario_devices" {
+  *scenario_id <<PK,FK>>
+  *device_id <<PK,FK>>
+}
+
+' Связи
+users ||--o{ houses : "fk_house_user"
+users ||--o{ scenarios : "fk_scenario_user"
+houses ||--o{ devices : "fk_device_house"
+device_types ||--o{ devices : "fk_device_type"
+devices ||--o{ telemetry_data : "fk_telemetry_device"
+measurement_units ||--o{ telemetry_data : "fk_telemetry_unit"
+modules ||--o{ module_devices : "fk_module_device_module"
+devices ||--o{ module_devices : "fk_module_device_device"
+scenarios ||--o{ scenario_devices : "fk_scenario_device_scenario"
+devices ||--o{ scenario_devices : "fk_scenario_device_device"
+
+' Стили для простоты
+skinparam monochrome true
+skinparam dpi 150
+skinparam defaultFontSize 12
+skinparam entity {
+  BackgroundColor White
+  BorderColor Black
+}
+skinparam arrowColor Black
+skinparam arrowThickness 0.7
+
+@enduml

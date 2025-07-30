@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   postgres:
@@ -32,12 +31,12 @@ services:
       - SERVER_PORT=8081
       - LOGGING_LEVEL_ROOT=DEBUG
     ports:
-      - "8081:8081"
+      - "8084:8084"
     restart: unless-stopped
     networks:
       - smarthome-network
 
-  app:
+  smart_home_monolith:
     build:
       context: ./smart_home
       dockerfile: Dockerfile
@@ -45,14 +44,60 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      temperature-api:
-        condition: service_started
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/smarthome
       - TEMPERATURE_API_URL=http://temperature-api:8081
     ports:
-      - "8080:8083"
+      - "8083:8083"
     restart: unless-stopped
+    networks:
+      - smarthome-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./proxy-server/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - smarthome-network
+    depends_on:
+      - smart_home_monolith
+      - statistics_service
+      - schedule_service
+
+  statistics_service:
+    build:
+      context: ./statistics-service
+      dockerfile: Dockerfile
+    container_name: statistics_service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/smarthome
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    networks:
+      - smarthome-network
+
+  schedule_service:
+    build:
+      context: ./schedule-service
+      dockerfile: Dockerfile
+    container_name: schedule_service
+    environment:
+      - DB_URL=postgres://postgres:postgres@postgres:5432/smarthome?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+      statistics_service:
+        condition: service_started
+    ports:
+      - "8082:8082"
     networks:
       - smarthome-network
 

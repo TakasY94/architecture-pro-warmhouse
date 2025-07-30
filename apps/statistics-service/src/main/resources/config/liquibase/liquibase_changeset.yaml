@@ -1,0 +1,373 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20250725192001-create-user-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: users
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 20250725192002-create-house-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: houses
+      changes:
+        - createTable:
+            tableName: houses
+            columns:
+              - column:
+                  name: house_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_house_user
+                    references: users(user_id)
+                    deleteCascade: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 20250725192003-create-device-type-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: device_types
+      changes:
+        - createTable:
+            tableName: device_types
+            columns:
+              - column:
+                  name: device_type_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 20250725192004-create-device-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: devices
+      changes:
+        - createTable:
+            tableName: devices
+            columns:
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: house_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_device_house
+                    references: houses(house_id)
+                    deleteCascade: true
+              - column:
+                  name: device_type_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_device_type
+                    references: device_types(device_type_id)
+                    deleteCascade: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 20250725192005-create-module-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: modules
+      changes:
+        - createTable:
+            tableName: modules
+            columns:
+              - column:
+                  name: module_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: configuration
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 20250725192006-create-measurement-unit-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: measurement_units
+      changes:
+        - createTable:
+            tableName: measurement_units
+            columns:
+              - column:
+                  name: unit_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 20250725192007-create-telemetry-data-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: telemetry_data
+      changes:
+        - createTable:
+            tableName: telemetry_data
+            columns:
+              - column:
+                  name: telemetry_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_telemetry_device
+                    references: devices(device_id)
+                    deleteCascade: true
+              - column:
+                  name: unit_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_telemetry_unit
+                    references: measurement_units(unit_id)
+                    deleteCascade: true
+              - column:
+                  name: value
+                  type: DOUBLE PRECISION
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timestamp
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 20250725192008-create-scenario-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: scenarios
+      changes:
+        - createTable:
+            tableName: scenarios
+            columns:
+              - column:
+                  name: scenario_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_scenario_user
+                    references: users(user_id)
+                    deleteCascade: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 20250725192009-create-module-device-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: module_devices
+      changes:
+        - createTable:
+            tableName: module_devices
+            columns:
+              - column:
+                  name: module_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_module_device_module
+                    references: modules(module_id)
+                    deleteCascade: true
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_module_device_device
+                    references: devices(device_id)
+                    deleteCascade: true
+            constraints:
+              - primaryKey:
+                  columns: [module_id, device_id]
+  - changeSet:
+      id: 20250725192010-create-scenario-device-table
+      author: warmhouse
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+          tableExists:
+            tableName: scenario_devices
+      changes:
+        - createTable:
+            tableName: scenario_devices
+            columns:
+              - column:
+                  name: scenario_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_scenario_device_scenario
+                    references: scenarios(scenario_id)
+                    deleteCascade: true
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_scenario_device_device
+                    references: devices(device_id)
+                    deleteCascade: true
+            constraints:
+              - primaryKey:
+                  columns: [scenario_id, device_id]

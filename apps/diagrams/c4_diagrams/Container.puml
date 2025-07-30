@@ -10,16 +10,16 @@ Person(admin, "Администратор", "Администратор подд
 System_Ext(SensorsOut, "Датчики и реле", "Устройства в домах для сбора данных и выполнения команд", "Использует REST API, формат JSON")
 
 Container_Boundary(WarmHouseSystem, "WarmHouse System") {
-  Container(WebApp, "Веб-портал", "Java, Spring", "Веб интерфейс управления умным домом")
+  Container(WebApp, "Веб-приложение", "Java, Spring", "Веб интерфейс управления умным домом")
   Container(MobileApp, "Мобильное приложение", "Kotlin, Swift", "Мобильный интерфейс для жителей")
   Container(ProxyServer, "Прокси/Балансер сервер", "Nginx", "Прокси сервер, балансировка нагрузки")
   Container(Kafka, "Система обмена сообщениями", "Kafka", "Очередь сообщений, используем для гарантированной доставки сигналов датчиков")
   Container(SensorsGateway, "Сервис отправки сообщений датчикам", "Java, Spring", "Сервис для гарантированной отправки сообщений датчикам, политики повторных отправок")
   Container(SensorService, "Управление датчиками", "Java, Spring", "Запрос и изменение состояний датчиков")
   Container(ScheduleService, "Управление сценариями", "Java, Spring", "Сервис управляющий исполнением, созданием и изменением сценариев умного дома")
-  Container(StatisticsService, "Сервис статистики", "Node.js", "Сбор статистики, аналитика, схемы")
+  Container(StatisticsService, "Личный кабинет и статистика", "Node.js", "Сбор статистики, аналитика, схемы")
   Container(PaymentService, "Сервис оплаты/подписок", "Node.js", "Processes payments")
-  Container(Database, "База данных", "PostgreSQL", "Stores user data and schedules")
+  Container(Database, "База данных", "PostgreSQL", "Хранит информацию датчиков и сценарии")
 }
 
 System_Ext(bank, "Bank System", "External bank for processing payments")

@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  title: ScheduleService API
+  version: 1.0.0
+  description: API для управления сценариями в системе умного дома "Тёплый дом"
+servers:
+  - url: https://api.warmhouse.com
+    description: Основной сервер API
+paths:
+  /scenarios:
+    post:
+      summary: Создание нового сценария
+      description: Создает новый сценарий для управления устройствами умного дома.
+      operationId: createScenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioCreate'
+            example:
+              user_id: 1
+              name: Вечерний режим
+              description: Включение света и отопления вечером
+              is_active: true
+              devices: [101, 102]
+      responses:
+        '201':
+          description: Сценарий создан
+          headers:
+            Location:
+              description: URL созданного сценария
+              schema:
+                type: string
+                example: /scenarios/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+              example:
+                scenario_id: 1
+                user_id: 1
+                name: Вечерний режим
+                description: Включение света и отопления вечером
+                is_active: true
+                devices: [101, 102]
+                created_at: 2025-07-21T16:51:00Z
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid request data
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Internal server error
+  /scenarios/{scenarioId}:
+    get:
+      summary: Получение информации о сценарии
+      description: Возвращает данные о сценарии по его идентификатору.
+      operationId: getScenario
+      parameters:
+        - name: scenarioId
+          in: path
+          required: true
+          description: Идентификатор сценария
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Сценарий найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+              example:
+                scenario_id: 1
+                user_id: 1
+                name: Вечерний режим
+                description: Включение света и отопления вечером
+                is_active: true
+                devices: [101, 102]
+                created_at: 2025-07-21T16:51:00Z
+        '404':
+          description: Сценарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Scenario not found
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Internal server error
+    patch:
+      summary: Обновление сценария
+      description: Обновляет данные сценария, включая статус и связанные устройства. Требуется указать хотя бы одно поле для обновления.
+      operationId: updateScenario
+      parameters:
+        - name: scenarioId
+          in: path
+          required: true
+          description: Идентификатор сценария
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Название сценария
+                description:
+                  type: string
+                  description: Описание сценария
+                is_active:
+                  type: boolean
+                  description: Статус активности сценария
+                devices:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  description: Список идентификаторов устройств
+              minProperties: 1
+              example:
+                name: Вечерний режим обновленный
+                description: Включение света, отопления и вентиляции
+                is_active: false
+                devices: [101, 103]
+      responses:
+        '200':
+          description: Сценарий обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scenario'
+              example:
+                scenario_id: 1
+                user_id: 1
+                name: Вечерний режим обновленный
+                description: Включение света, отопления и вентиляции
+                is_active: false
+                devices: [101, 103]
+                created_at: 2025-07-21T16:51:00Z
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: At least one field must be provided
+        '404':
+          description: Сценарий не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Scenario not found
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Internal server error
+components:
+  schemas:
+    Scenario:
+      type: object
+      properties:
+        scenario_id:
+          type: integer
+          format: int64
+          description: Идентификатор сценария
+        user_id:
+          type: integer
+          format: int64
+          description: Идентификатор пользователя, создавшего сценарий
+        name:
+          type: string
+          description: Название сценария
+        description:
+          type: string
+          description: Описание сценария
+        is_active:
+          type: boolean
+          description: Статус активности сценария
+        devices:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: Список идентификаторов устройств, связанных со сценарием
+        created_at:
+          type: string
+          format: date-time
+          description: Дата и время создания сценария
+      required:
+        - scenario_id
+        - user_id
+        - name
+        - is_active
+        - created_at
+    ScenarioCreate:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          description: Идентификатор пользователя, создающего сценарий
+        name:
+          type: string
+          description: Название сценария
+        description:
+          type: string
+          description: Описание сценария
+        is_active:
+          type: boolean
+          description: Статус активности сценария
+        devices:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: Список идентификаторов устройств, связанных со сценарием
+      required:
+        - user_id
+        - name
+        - is_active
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки
+      required:
+        - error
