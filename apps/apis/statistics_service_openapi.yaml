@@ -1,0 +1,343 @@
+openapi: 3.0.3
+info:
+  title: StatisticsService API
+  version: 1.0.0
+  description: API для сбора и предоставления статистики телеметрии в системе умного дома "Тёплый дом"
+servers:
+  - url: https://api.warmhouse.com
+    description: Основной сервер API
+paths:
+  /houses/{houseId}/telemetry:
+    get:
+      summary: Получение телеметрии для дома
+      description: Возвращает данные телеметрии для всех устройств в указанном доме за заданный период времени. Поддерживает пагинацию.
+      operationId: getHouseTelemetry
+      parameters:
+        - name: houseId
+          in: path
+          required: true
+          description: Идентификатор дома
+          schema:
+            type: integer
+            format: int64
+        - name: startTime
+          in: query
+          required: true
+          description: Начало периода в формате ISO 8601
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          description: Конец периода в формате ISO 8601
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          required: false
+          description: Максимальное количество записей (по умолчанию 100, максимум 1000)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          required: false
+          description: Смещение для пагинации (по умолчанию 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Данные телеметрии получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryData'
+              example:
+                - telemetry_id: 1
+                  device_id: 101
+                  unit_id: 1
+                  unit_name: °C
+                  value: 22.5
+                  timestamp: 2025-07-25T18:00:00Z
+                - telemetry_id: 2
+                  device_id: 102
+                  unit_id: 2
+                  unit_name: лм
+                  value: 300.0
+                  timestamp: 2025-07-25T18:01:00Z
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: End time must be after start time
+        '404':
+          description: Дом не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: House not found
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Internal server error
+  /houses/{houseId}/devices/{deviceId}/telemetry:
+    get:
+      summary: Получение телеметрии для устройства
+      description: Возвращает данные телеметрии для указанного устройства за заданный период времени. Поддерживает пагинацию.
+      operationId: getDeviceTelemetry
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: Идентификатор устройства
+          schema:
+            type: integer
+            format: int64
+        - name: startTime
+          in: query
+          required: true
+          description: Начало периода в формате ISO 8601
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          description: Конец периода в формате ISO 8601
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          required: false
+          description: Максимальное количество записей (по умолчанию 100, максимум 1000)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          required: false
+          description: Смещение для пагинации (по умолчанию 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Данные телеметрии получены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TelemetryData'
+              example:
+                - telemetry_id: 1
+                  device_id: 101
+                  unit_id: 1
+                  unit_name: °C
+                  value: 22.5
+                  timestamp: 2025-07-25T18:00:00Z
+                - telemetry_id: 3
+                  device_id: 101
+                  unit_id: 1
+                  unit_name: °C
+                  value: 23.0
+                  timestamp: 2025-07-25T18:05:00Z
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: End time must be after start time
+        '404':
+          description: Устройство не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Device not found
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Internal server error
+  /houses/{houseId}/statistics/summary:
+    get:
+      summary: Получение сводной статистики по дому
+      description: Возвращает сводные статистиические данные (средние, минимальные, максимальные значения) по телеметрии устройств в доме за указанный период.
+      operationId: getHouseStatisticsSummary
+      parameters:
+        - name: houseId
+          in: path
+          required: true
+          description: Идентификатор дома
+          schema:
+            type: integer
+            format: int64
+        - name: startTime
+          in: query
+          required: true
+          description: Начало периода в формате ISO 8601
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          description: Конец периода в формате ISO 8601
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Сводная статистика получена
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatisticsSummary'
+              example:
+                - device_id: 101
+                  unit_id: 1
+                  unit_name: °C
+                  average_value: 22.75
+                  min_value: 22.0
+                  max_value: 23.5
+                  count: 10
+                - device_id: 102
+                  unit_id: 2
+                  unit_name: лм
+                  average_value: 350.0
+                  min_value: 300.0
+                  max_value: 400.0
+                  count: 8
+        '400':
+          description: Некорректный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: End time must be after start time
+        '404':
+          description: Дом не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: House not found
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Internal server error
+components:
+  schemas:
+    TelemetryData:
+      type: object
+      properties:
+        telemetry_id:
+          type: integer
+          format: int64
+          description: Идентификатор записи телеметрии
+        device_id:
+          type: integer
+          format: int64
+          description: Идентификатор устройства
+        unit_id:
+          type: integer
+          format: int64
+          description: Идентификатор единицы измерения
+        unit_name:
+          type: string
+          description: Название единицы измерения (например, °C, лм)
+        value:
+          type: number
+          format: float
+          description: Значение телеметрии
+        timestamp:
+          type: string
+          format: date-time
+          description: Временная метка
+      required:
+        - telemetry_id
+        - device_id
+        - unit_id
+        - value
+        - timestamp
+    StatisticsSummary:
+      type: object
+      properties:
+        device_id:
+          type: integer
+          format: int64
+          description: Идентификатор устройства
+        unit_id:
+          type: integer
+          format: int64
+          description: Идентификатор единицы измерения
+        unit_name:
+          type: string
+          description: Название единицы измерения (например, °C, лм)
+        average_value:
+          type: number
+          format: float
+          description: Среднее значение телеметрии за период
+        min_value:
+          type: number
+          format: float
+          description: Минимальное значение телеметрии за период
+        max_value:
+          type: number
+          format: float
+          description: Максимальное значение телеметрии за период
+        count:
+          type: integer
+          format: int64
+          description: Количество записей телеметрии
+      required:
+        - device_id
+        - unit_id
+        - average_value
+        - min_value
+        - max_value
+        - count
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки
+      required:
+        - error

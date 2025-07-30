@@ -28,7 +28,7 @@ func main() {
 	log.Println("Connected to database successfully")
 
 	// Initialize temperature service
-	temperatureAPIURL := getEnv("TEMPERATURE_API_URL", "http://temperature-api:8081")
+	temperatureAPIURL := getEnv("TEMPERATURE_API_URL", "http://temperature-api:8084")
 	temperatureService := services.NewTemperatureService(temperatureAPIURL)
 	log.Printf("Temperature service initialized with API URL: %s\n", temperatureAPIURL)
 
@@ -51,7 +51,7 @@ func main() {
 
 	// Start server
 	srv := &http.Server{
-		Addr:    getEnv("PORT", ":8080"),
+		Addr:    getEnv("PORT", ":8083"),
 		Handler: router,
 	}
 
